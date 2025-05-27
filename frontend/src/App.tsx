@@ -5,14 +5,14 @@ import { postSleepScore } from './api.ts';
 import { ApiResponse, SleepFormInput } from './types.ts';
 
 const defaultInput: SleepFormInput = {
-  total_sleep_hours: 7.5,
-  sleep_efficiency: 90,
-  REM_percentage: 22,
-  age: 35,
+  total_sleep_hours: '',
+  sleep_efficiency: '',
+  REM_percentage: '',
+  age: '',
   sex: 'male',
-  sleep_latency: 15,
-  hrv: 60,
-  timing_consistency: 0.5,
+  sleep_latency: '',
+  hrv: '',
+  timing_consistency: '',
   chronotype_alignment: true,
 };
 
@@ -47,7 +47,7 @@ function App() {
     const { name, value, type, checked } = e.target;
     setInput(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : name === 'sex' ? value : Number(value),
+      [name]: type === 'checkbox' ? checked : name === 'sex' ? value : value === '' ? '' : Number(value),
     }));
   };
 
@@ -56,8 +56,18 @@ function App() {
     setLoading(true);
     setError('');
     setResult(null);
+    const preparedInput = {
+      ...input,
+      total_sleep_hours: input.total_sleep_hours === '' ? 0 : Number(input.total_sleep_hours),
+      sleep_efficiency: input.sleep_efficiency === '' ? 0 : Number(input.sleep_efficiency),
+      REM_percentage: input.REM_percentage === '' ? 0 : Number(input.REM_percentage),
+      age: input.age === '' ? 0 : Number(input.age),
+      sleep_latency: input.sleep_latency === '' ? 0 : Number(input.sleep_latency),
+      hrv: input.hrv === '' ? 0 : Number(input.hrv),
+      timing_consistency: input.timing_consistency === '' ? 0 : Number(input.timing_consistency),
+    };
     try {
-      const data = await postSleepScore(input);
+      const data = await postSleepScore(preparedInput);
       setResult(data);
     } catch (err) {
       setError('Failed to fetch score. Please check backend connection.');
@@ -81,24 +91,24 @@ function App() {
       <form className="input-form" onSubmit={handleSubmit}>
         <div className="form-row">
           <label>Total Sleep Hours
-            <input type="number" step="0.1" min="0" max="24" name="total_sleep_hours" value={input.total_sleep_hours} onChange={handleChange} required />
+            <input type="number" step="0.1" min="0" max="24" name="total_sleep_hours" value={input.total_sleep_hours === 0 ? '' : input.total_sleep_hours} onChange={handleChange} required />
           </label>
           <label>Sleep Efficiency (%)
-            <input type="number" step="0.1" min="0" max="100" name="sleep_efficiency" value={input.sleep_efficiency} onChange={handleChange} required />
+            <input type="number" step="0.1" min="0" max="100" name="sleep_efficiency" value={input.sleep_efficiency === 0 ? '' : input.sleep_efficiency} onChange={handleChange} required />
           </label>
           <label>REM %
-            <input type="number" step="0.1" min="0" max="100" name="REM_percentage" value={input.REM_percentage} onChange={handleChange} required />
+            <input type="number" step="0.1" min="0" max="100" name="REM_percentage" value={input.REM_percentage === 0 ? '' : input.REM_percentage} onChange={handleChange} required />
           </label>
         </div>
         <div className="form-row">
           <label>Sleep Latency (min)
-            <input type="number" step="1" min="0" max="180" name="sleep_latency" value={input.sleep_latency} onChange={handleChange} required />
+            <input type="number" step="1" min="0" max="180" name="sleep_latency" value={input.sleep_latency === 0 ? '' : input.sleep_latency} onChange={handleChange} required />
           </label>
           <label>HRV (ms)
-            <input type="number" step="1" min="0" max="300" name="hrv" value={input.hrv} onChange={handleChange} required />
+            <input type="number" step="1" min="0" max="300" name="hrv" value={input.hrv === 0 ? '' : input.hrv} onChange={handleChange} required />
           </label>
           <label>Timing Consistency (hr)
-            <input type="number" step="0.01" min="0" max="12" name="timing_consistency" value={input.timing_consistency} onChange={handleChange} required />
+            <input type="number" step="0.01" min="0" max="12" name="timing_consistency" value={input.timing_consistency === 0 ? '' : input.timing_consistency} onChange={handleChange} required />
           </label>
         </div>
         <div className="form-row">
@@ -109,7 +119,7 @@ function App() {
             </select>
           </label>
           <label>Age
-            <input type="number" min="0" max="120" name="age" value={input.age} onChange={handleChange} required />
+            <input type="number" min="0" max="120" name="age" value={input.age === 0 ? '' : input.age} onChange={handleChange} required />
           </label>
           <label>Sex
             <select name="sex" value={input.sex} onChange={handleChange} required>

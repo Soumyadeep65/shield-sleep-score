@@ -10,13 +10,13 @@ export type ApiResponse = {
 };
 
 export type SleepFormInput = {
-  total_sleep_hours: number;
-  sleep_efficiency: number;
-  REM_percentage: number;
-  age: number;
+  total_sleep_hours: string | number;
+  sleep_efficiency: string | number;
+  REM_percentage: string | number;
+  age: string | number;
   sex: string;
-  sleep_latency: number;
-  hrv: number;
-  timing_consistency: number;
+  sleep_latency: string | number;
+  hrv: string | number;
+  timing_consistency: string | number;
   chronotype_alignment: boolean;
 }; 
