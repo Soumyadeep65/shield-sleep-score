@@ -1,22 +1,24 @@
-# SHIELD Longevity Module
+# SHIELD Longevity Platform
 
 ## Overview
-A full-stack application to calculate and visualize a SHIELD Sleep Score and biological age delta, with actionable alerts and suggestions. Built with Python FastAPI (backend) and React (frontend).
+SHIELD is a full-stack longevity analytics platform with a FastAPI backend and a React frontend. It provides sleep scoring, lab report extraction, actionable suggestions (via OpenAI), and a professional, investor-ready UI.
 
 ---
 
 ## Architecture
 - **Backend:** Python FastAPI REST API
-  - Endpoint: `/api/sleep-score`
-  - Handles scoring logic, input validation, and CORS
+  - Endpoint: `/api/sleep-score` (modular, extensible metric config)
+  - Endpoint: `/api/lab-upload` (simulated secure lab report upload)
+  - Handles scoring logic, input validation, CORS, and error handling
 - **Frontend:** React (TypeScript, PWA-ready)
-  - Dashboard widget for user input, score display, alerts, and suggestions
+  - Dashboard widget for user input, score display, alerts, suggestions, and biomarker upload
   - Fetches data from backend API
+  - Professional, responsive, and visually impressive UI
 
 ---
 
 ## Assumptions
-- The scoring rules are as described in the prompt
+- The scoring rules and weights are as described in the prompt and scientific literature
 - No authentication is required for this demo
 - The backend and frontend run on localhost (default ports: 8000 for API, 3000 for frontend)
 - Suggestions for alerts are static and mapped in the frontend
@@ -48,39 +50,91 @@ npm start
 ## Testing
 - Use the dashboard widget to enter values and view the score, bio-age delta, and alerts
 - Try edge cases (e.g., very low sleep hours, high age, etc.)
+- Upload a PDF or image in the "Simulate Secure Lab Report Upload" section to see dummy biomarker extraction
 
 ---
 
 ## Deployment
-- **Backend:** Deployable on any cloud (Heroku, AWS, Azure, etc.) supporting FastAPI/Uvicorn
+- **Backend:** Deployable on any cloud (Render, Heroku, AWS, Azure, etc.) supporting FastAPI/Uvicorn
 - **Frontend:** Deployable on Vercel, Netlify, or any static hosting
 - For production, set CORS origins and use HTTPS
 
 ---
 
-## Technical & Ethics Answers
-
-### 1. Dynamic Scoring Weights with Machine Learning
-- Replace hardcoded rules with a model trained on real-world sleep/health data
-- Use features (sleep hours, efficiency, REM, age, sex, etc.) as input to a regression/classification model
-- Store model weights in a database or as a serialized file (e.g., joblib/pickle)
-- Expose an endpoint for model inference; retrain periodically as more data is collected
-- Optionally, allow weights to be updated via an admin interface
-
-### 2. Secure Lab Report Upload & Biomarker Extraction
-- Use secure file upload endpoints (e.g., FastAPI's `UploadFile` with authentication)
-- Store files encrypted at rest (e.g., AWS S3 with server-side encryption)
-- Use OCR/NLP pipelines to extract biomarker data (e.g., CRP, glucose) from PDFs/images
-- Only allow access to authorized users; audit all access
-- Delete files after extraction if not needed
-
-### 3. Ensuring HIPAA Compliance
-- Use HTTPS for all API endpoints
-- Authenticate and authorize all users (OAuth2, JWT, etc.)
-- Log access to PHI (Protected Health Information)
-- Store sensitive data encrypted at rest and in transit
-- Regularly audit code and infrastructure for vulnerabilities
-- Provide a way for patients to access, amend, or delete their data
-- Train staff/developers on HIPAA best practices
+## Features & Improvements
+- **Input validation**: All fields are validated for range and required status, with inline error messages
+- **Error handling**: API/network/validation errors are shown clearly
+- **Modular backend**: Metrics and logic are in a config dict for easy extension
+- **Tooltips/descriptions**: Every metric input and card has a tooltip/info icon
+- **Suggestions under alerts**: Each alert displays its suggestion directly below
+- **Visual feedback**: Color-coded scores, progress bars for metric impact, and a beautiful, professional UI
+- **Lab report upload**: Simulated upload with biomarker extraction and display
 
 ---
+
+## Simulated Lab Report Upload
+- The frontend allows users to upload a PDF or image file as a "lab report"
+- The backend `/api/lab-upload` endpoint simulates secure file receipt and returns dummy biomarker data (CRP, Glucose, Vitamin D, LDL)
+- In a real system, files would be stored securely, parsed for biomarkers, and access would be audited
+
+---
+
+## ML Integration Plan
+
+### Current State
+- The backend uses rule-based scoring for sleep and biomarker extraction from lab reports.
+- AI (OpenAI) is used for generating actionable suggestions and summaries.
+
+### ML Expansion Roadmap
+1. **Model Training**
+   - Collect anonymized user data (sleep, labs, outcomes) with consent.
+   - Train ML models (e.g., XGBoost, LightGBM, or deep learning) to predict health risks, biological age, or optimal ranges.
+2. **Model Serving**
+   - Deploy models as microservices (e.g., using FastAPI, TorchServe, or TensorFlow Serving).
+   - Expose endpoints for predictions (e.g., `/api/ml-bioage`, `/api/ml-risk-score`).
+3. **Integration with Scoring Logic**
+   - When a user submits data, call the ML model endpoint(s) from the scoring service.
+   - Combine model outputs (e.g., predicted bio-age, risk probabilities) with rule-based metrics for a composite score.
+   - Example: `final_score = 0.7 * rule_score + 0.3 * ml_bioage_score`
+   - Use model explanations (e.g., SHAP values) to provide personalized feedback in the UI.
+4. **Continuous Learning**
+   - Periodically retrain models with new data.
+   - Allow users to opt-in for their data to improve the system.
+
+---
+
+## Roadmap for HIPAA-Compliant File Uploads & Secure Storage
+
+1. **Transport Security**
+   - Enforce HTTPS for all API endpoints and frontend assets.
+   - Use HSTS headers and TLS 1.2+.
+2. **Authentication & Authorization**
+   - Require user authentication (OAuth2, SSO, or custom JWT) for all uploads and sensitive endpoints.
+   - Implement role-based access control (RBAC) for user data.
+3. **File Handling**
+   - Store uploaded files in encrypted storage (e.g., AWS S3 with SSE, Azure Blob with encryption, or on-prem with LUKS).
+   - Never store files on local disk in production; use secure, access-controlled cloud storage.
+   - Use signed URLs for temporary access to files.
+4. **Data Minimization & Retention**
+   - Only retain files as long as necessary for analysis.
+   - Allow users to delete their files and data on request.
+5. **Audit Logging**
+   - Log all file access, uploads, and downloads with user IDs and timestamps.
+   - Regularly review logs for suspicious activity.
+6. **Compliance & Policies**
+   - Sign Business Associate Agreements (BAA) with cloud providers.
+   - Conduct regular HIPAA risk assessments and penetration testing.
+   - Train staff on HIPAA and data privacy best practices.
+7. **User Consent & Transparency**
+   - Provide clear consent forms and privacy policies.
+   - Allow users to download or delete their data at any time.
+
+---
+
+## Deployment & Testing
+- See previous sections for setup, environment variables, and running the backend/frontend.
+- For production, ensure all security and compliance steps above are followed.
+
+---
+
+For more details or to contribute, see the codebase or contact the maintainers.

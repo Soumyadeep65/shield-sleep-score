@@ -6,6 +6,8 @@ export type ApiResponse = {
     value: number | boolean;
     optimal: string;
     impact: number;
+    label: string;
+    help: string;
   }>;
 };
 
@@ -19,4 +21,10 @@ export type SleepFormInput = {
   hrv: string | number;
   timing_consistency: string | number;
   chronotype_alignment: boolean;
+};
+
+export type BiomarkerResponse = {
+  filename: string;
+  biomarkers: Record<string, number>;
+  message: string;
 }; 

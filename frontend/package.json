@@ -3,10 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@hookform/resolvers": "^5.0.1",
+    "axios": "^1.9.0",
     "cra-template-pwa-typescript": "2.0.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-scripts": "5.0.1"
+    "react-hook-form": "^7.56.4",
+    "react-router-dom": "^7.6.1",
+    "react-scripts": "5.0.1",
+    "react-tooltip": "^5.28.1",
+    "recharts": "^2.15.3",
+    "yup": "^1.6.1"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -33,6 +40,7 @@
     ]
   },
   "devDependencies": {
+    "@types/axios": "^0.9.36",
     "@types/node": "^22.15.21"
   }
 }
